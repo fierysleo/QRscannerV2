@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Attendance Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Attendance Scanner</h2>
+    <div id="reader"></div>
+    <p id="status">Ready to scan...</p>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/u/2/home/projects/15WWZuMKF4YZ76FManW0z77wHTydp5Xm3wqonz_WPt-JkG4val2VP5dDx/edit?aaac=true&pli=1';
+        let isScanning = true;
+
+        function onScanSuccess(decodedText) {
+            if (!isScanning) return;
+            isScanning = false;
+
+            document.getElementById('status').innerText = `Logging: ${decodedText}...`;
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ attendeeId: decodedText })
+            })
+                .then(() => {
+                    document.getElementById('status').innerText = `✅ Checked in: ${decodedText}`;
+                    setTimeout(() => {
+                        document.getElementById('status').innerText = "Ready to scan next...";
+                        isScanning = true;
+                    }, 2000); // 2-second cooldown to prevent double scans
+                })
+                .catch(err => {
+                    document.getElementById('status').innerText = "❌ Error logging attendance";
+                    isScanning = true;
+                });
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+
+</html>
