@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check In — QR Attendance</title>
+  <meta name="description" content="Scan the event QR code and fill in your details to mark your attendance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Shared design system -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <style>
+    /* ── attend.html specific styles ───────────────────────── */
+
+    /* Confirmation / success screen */
+    .success-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 32px 16px;
+    }
+    .success-screen.visible { display: flex; }
+
+    .success-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(52, 211, 153, 0.15);
+      border: 2px solid rgba(52, 211, 153, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      animation: popIn 0.5s ease both;
+    }
+    .success-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--success);
+    }
+    .success-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.6;
+    }
+    .success-name {
+      font-size: 0.85rem;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.25);
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Session badge shown at the top of the attend page */
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.28);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #5eead4;
+      margin-bottom: 8px;
+    }
+
+    /* Error state on the session lookup */
+    .session-error {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--error);
+    }
+    .session-error .error-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .session-error p { font-size: 0.88rem; color: var(--text-muted); margin-top: 6px; }
+
+    /* Submit button loading state */
+    .btn[disabled] { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+
+<body>
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header" id="attendHeader">
+      <div class="badge teal">
+        <span class="dot"></span>
+        Employee Check-In
+      </div>
+      <h1 class="teal-gradient">Mark Your Attendance</h1>
+      <p>Fill in your details below and tap <strong>Check In</strong> — it only takes a second!</p>
+    </header>
+
+    <!-- Main card -->
+    <main class="card" role="main" id="mainCard">
+
+      <!-- Session info (populated by JS from URL params) -->
+      <div id="sessionDisplay" style="text-align:center; margin-bottom: 18px;"></div>
+
+      <!-- Check-in form (shown when session is valid) -->
+      <div id="checkinForm">
+
+        <div class="instruction-banner teal" role="note">
+          <span class="instr-icon" aria-hidden="true">✏️</span>
+          <span>Enter your name and employee ID, then tap <strong>Check In</strong>.</span>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="empNameInput">Your Full Name</label>
+          <input
+            type="text"
+            id="empNameInput"
+            class="form-input teal"
+            placeholder="e.g. Juan dela Cruz"
+            autocomplete="name"
+            maxlength="80"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="empIdInput">Employee / Student ID</label>
+          <input
+            type="text"
+            id="empIdInput"
+            class="form-input teal"
+            placeholder="e.g. EMP-00123"
+            autocomplete="off"
+            maxlength="40"
+            required
+          />
+        </div>
+
+        <!-- Status feedback during submission -->
+        <div class="status-banner" id="attendStatus" role="status" aria-live="polite" style="margin-bottom:12px;">
+          <span class="status-icon" id="attendStatusIcon">🟢</span>
+          <span class="status-text">
+            <span class="label" id="attendStatusLabel">Ready</span>
+            <span id="attendStatusText">Fill in your details and tap Check In.</span>
+          </span>
+        </div>
+
+        <!-- Submit button -->
+        <button class="btn btn-teal btn-full" id="submitCheckinBtn" type="button">
+          ✅ Check In
+        </button>
+
+      </div>
+
+      <!-- Success screen (shown after successful submission) -->
+      <div class="success-screen" id="successScreen" aria-live="assertive">
+        <div class="success-circle" aria-hidden="true">✅</div>
+        <div class="success-title">You're Checked In!</div>
+        <div class="success-subtitle">
+          Your attendance has been recorded. You can close this page.
+        </div>
+        <div class="success-name" id="successName"></div>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      &copy; 2025 QR Attendance System &mdash; All rights reserved
+    </footer>
+  </div>
+
+  <script>
+    /* ============================================================
+       attend.html inline script — Employee Self Check-In
+       Logic is small enough to keep here as it is page-specific.
+       ============================================================ */
+
+    /* ── Configuration ────────────────────────────────────────── */
+    /**
+     * Same Google Apps Script URL as Mode A.
+     * Payload shape is different: { employeeId, employeeName, sessionId, mode: "self-checkin" }
+     */
+    const SCRIPT_URL =
+      'https://script.google.com/macros/s/AKfycbwHNBpb_YZqUjq_pP4-OfHXSiv3uH2q24u5Pv-E0JE-pboFL5v_7QSHFrJczl7TAV5E3A/exec';
+
+    /* ── Read session token from URL parameters ───────────────── */
+    const urlParams   = new URLSearchParams(window.location.search);
+    const sessionId   = urlParams.get('session') || '';
+
+    /* ── DOM References ───────────────────────────────────────── */
+    const sessionDisplay   = document.getElementById('sessionDisplay');
+    const empNameInput     = document.getElementById('empNameInput');
+    const empIdInput       = document.getElementById('empIdInput');
+    const submitBtn        = document.getElementById('submitCheckinBtn');
+    const attendStatus     = document.getElementById('attendStatus');
+    const attendStatusIcon = document.getElementById('attendStatusIcon');
+    const attendStatusLbl  = document.getElementById('attendStatusLabel');
+    const attendStatusText = document.getElementById('attendStatusText');
+    const checkinForm      = document.getElementById('checkinForm');
+    const successScreen    = document.getElementById('successScreen');
+    const successName      = document.getElementById('successName');
+
+    /* ── Validate session token ───────────────────────────────── */
+    if (!sessionId) {
+      // No session in URL — show an error state
+      sessionDisplay.innerHTML = `
+        <div class="session-error">
+          <div class="error-icon">⚠️</div>
+          <strong style="color:var(--error);">No Session Found</strong>
+          <p>This check-in link is invalid or expired.<br/>Please scan the QR code again.</p>
+        </div>`;
+      checkinForm.style.display = 'none';
+    } else {
+      // Show a friendly session badge
+      sessionDisplay.innerHTML = `
+        <span class="session-badge">
+          🗂️ Session: ${sessionId}
+        </span>`;
+    }
+
+    /* ── Status Banner Helper ─────────────────────────────────── */
+    /**
+     * Updates the status banner on the employee form.
+     * @param {string} type  - '' | 'success' | 'error' | 'logging'
+     * @param {string} icon  - Emoji icon
+     * @param {string} label - Short uppercase label
+     * @param {string} text  - Main descriptive text
+     */
+    function setAttendStatus(type, icon, label, text) {
+      attendStatus.className = 'status-banner pop ' + type;
+      attendStatusIcon.textContent = icon;
+      attendStatusLbl.textContent  = label;
+      attendStatusText.textContent = text;
+      attendStatus.addEventListener('animationend', () => attendStatus.classList.remove('pop'), { once: true });
+    }
+
+    /* ── Validation ───────────────────────────────────────────── */
+    /**
+     * Highlights a field with an error border and removes it after a delay.
+     * @param {HTMLElement} field
+     */
+    function flashError(field) {
+      field.style.borderColor = 'var(--error)';
+      field.style.boxShadow   = '0 0 0 3px rgba(248,113,113,0.18)';
+      setTimeout(() => {
+        field.style.borderColor = '';
+        field.style.boxShadow   = '';
+      }, 1800);
+    }
+
+    /* ── Check-In Submission ──────────────────────────────────── */
+    submitBtn.addEventListener('click', () => {
+      const empName = empNameInput.value.trim();
+      const empId   = empIdInput.value.trim();
+
+      // Client-side validation
+      if (!empName) { flashError(empNameInput); empNameInput.focus(); return; }
+      if (!empId)   { flashError(empIdInput);   empIdInput.focus();   return; }
+
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Submitting…';
+      setAttendStatus('logging', '⏳', 'Submitting', 'Recording your attendance…');
+
+      // POST to the Google Apps Script backend
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode:   'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeName: empName,
+          employeeId:   empId,
+          sessionId:    sessionId,
+          mode:         'self-checkin'
+        })
+      })
+        .then(() => {
+          // Show success screen, hide the form
+          checkinForm.style.display  = 'none';
+          successScreen.style.display = 'flex';
+          successScreen.classList.add('visible');
+          successName.textContent = `${empName} (${empId})`;
+        })
+        .catch(_err => {
+          // Re-enable button on failure so user can retry
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '✅ Check In';
+          setAttendStatus('error', '❌', 'Error', 'Could not submit. Check your connection and try again.');
+        });
+    });
+
+    /* ── Allow Enter key to submit ────────────────────────────── */
+    [empNameInput, empIdInput].forEach(field => {
+      field.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
+    });
+  </script>
+</body>
+
+</html>

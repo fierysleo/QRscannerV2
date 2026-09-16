@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Scan — QR Attendance</title>
+  <meta name="description" content="Scan employee QR badges to record attendance. Admin or front-desk mode." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Shared design system -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- html5-qrcode library (camera scanning) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+
+<body>
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="page">
+
+    <!-- Back to home navigation -->
+    <a href="index.html" class="back-btn" aria-label="Back to mode selection">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 12L6 8l4-4"/>
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="badge">
+        <span class="dot"></span>
+        Admin Scan Mode
+      </div>
+      <h1>Scan Employee QR</h1>
+      <p>Point the camera at an employee's QR badge to check them in instantly.</p>
+    </header>
+
+    <!-- Main card -->
+    <main class="card" role="main">
+
+      <!-- How-to instruction for non-tech users -->
+      <div class="instruction-banner" role="note">
+        <span class="instr-icon" aria-hidden="true">💡</span>
+        <span>
+          <strong>How to use:</strong> Tap <em>Start Camera</em>, then hold an employee's
+          QR badge inside the frame until you hear or see a confirmation.
+        </span>
+      </div>
+
+      <!-- Camera viewfinder -->
+      <div class="scanner-wrapper">
+        <div class="scan-corners" aria-hidden="true">
+          <span class="corner-bl"></span>
+          <span class="corner-br"></span>
+        </div>
+        <div class="scan-line" id="scanLine" aria-hidden="true"></div>
+        <div id="reader"></div>
+      </div>
+
+      <!-- Status feedback -->
+      <div class="divider">Status</div>
+      <div class="status-banner" id="statusBanner" role="status" aria-live="polite">
+        <span class="status-icon" id="statusIcon">📷</span>
+        <span class="status-text">
+          <span class="label" id="statusLabel">Awaiting</span>
+          <span id="status">Ready to scan…</span>
+        </span>
+      </div>
+
+      <!-- Session stats -->
+      <div class="stats-row" aria-label="Session statistics">
+        <div class="stat-chip">
+          <span class="val" id="scanCount">0</span>
+          <span class="lbl">Scanned</span>
+        </div>
+        <div class="stat-chip">
+          <span class="val" id="errorCount">0</span>
+          <span class="lbl">Errors</span>
+        </div>
+        <div class="stat-chip">
+          <span class="val" id="sessionTime">00:00</span>
+          <span class="lbl">Session</span>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      &copy; 2025 QR Attendance System &mdash; All rights reserved
+    </footer>
+  </div>
+
+  <!-- Mode A logic -->
+  <script src="js/scanner.js"></script>
+</body>
+
+</html>

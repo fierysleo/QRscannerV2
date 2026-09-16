@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Check-In QR — QR Attendance</title>
+  <meta name="description" content="Generate a session QR code for employees to scan and check in themselves." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Shared design system -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- QRCode.js — client-side QR code rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <style>
+    /* ── checkin.html specific styles ───────────────────────── */
+
+    /* Wider max-width for the admin view (more space needed for QR) */
+    .card { max-width: 540px; }
+
+    /* QR placeholder (shown before generating) */
+    .qr-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 220px;
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 24px;
+    }
+    .qr-placeholder .placeholder-icon {
+      font-size: 3rem;
+      opacity: 0.4;
+    }
+
+    /* QR display box (shown after generating) */
+    .qr-display-box {
+      display: none; /* shown via JS */
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .qr-session-label {
+      font-size: 0.78rem;
+      color: #374151;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.04em;
+      max-width: 220px;
+    }
+
+    /* Session info row (token + copy link button) */
+    .session-info-row {
+      display: none; /* shown via JS */
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: var(--radius-md);
+      font-size: 0.78rem;
+      flex-wrap: wrap;
+    }
+    .session-token-text {
+      color: #5eead4;
+      font-family: monospace;
+      font-size: 0.75rem;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    /* Live check-in counter */
+    .checkin-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(52, 211, 153, 0.07);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    .checkin-counter .big-num {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--success);
+      line-height: 1;
+      min-width: 60px;
+    }
+    .checkin-counter .counter-label {
+      text-align: left;
+    }
+    .checkin-counter .counter-label strong {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .checkin-counter .counter-label span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Button row */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .btn-row .btn { flex: 1; }
+  </style>
+</head>
+
+<body>
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="page">
+
+    <!-- Back navigation -->
+    <a href="index.html" class="back-btn" aria-label="Back to mode selection">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 12L6 8l4-4"/>
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="badge teal">
+        <span class="dot"></span>
+        Employee Check-In
+      </div>
+      <h1 class="teal-gradient">Display Check-In QR</h1>
+      <p>Enter a session name, then show the QR on screen. Employees scan it with their phones to check in.</p>
+    </header>
+
+    <!-- Main card -->
+    <main class="card" role="main">
+
+      <!-- Instruction for admin -->
+      <div class="instruction-banner teal" role="note">
+        <span class="instr-icon" aria-hidden="true">📌</span>
+        <span>
+          <strong>Admin step:</strong> Type the event or session name below, tap
+          <em>Generate QR</em>, then display this screen where employees can scan it.
+        </span>
+      </div>
+
+      <!-- Event name input -->
+      <div class="form-group">
+        <label for="eventNameInput">Event / Session Name</label>
+        <input
+          type="text"
+          id="eventNameInput"
+          class="form-input teal"
+          placeholder="e.g. Morning Briefing, Oct 2025 Training…"
+          maxlength="60"
+          autocomplete="off"
+          aria-required="true"
+        />
+      </div>
+
+      <!-- Generate button -->
+      <button class="btn btn-teal btn-full" id="generateBtn" type="button">
+        ✨ Generate QR Code
+      </button>
+
+      <!-- QR code display area -->
+      <div class="divider">QR Code</div>
+      <div id="qrContainer" style="display: flex; justify-content: center;">
+
+        <!-- Placeholder before generating -->
+        <div class="qr-placeholder" id="qrPlaceholder" aria-label="QR code will appear here">
+          <span class="placeholder-icon" aria-hidden="true">⬜</span>
+          <span>Your QR code will appear here.<br/>Enter a session name above to get started.</span>
+        </div>
+
+        <!-- Generated QR box -->
+        <div class="qr-display-box" id="qrDisplayBox" aria-live="polite" aria-label="Generated QR code">
+          <div id="qrCanvas"></div>
+          <div class="qr-session-label" id="qrSessionLabel"></div>
+        </div>
+      </div>
+
+      <!-- Session token + copy link row (appears after generating) -->
+      <div class="session-info-row" id="sessionInfoRow">
+        <span style="color: var(--text-muted); font-weight: 600; white-space: nowrap;">Session:</span>
+        <span class="session-token-text" id="sessionTokenDisplay"></span>
+        <button class="btn btn-ghost" id="copyLinkBtn" type="button" style="padding: 6px 12px; font-size:0.78rem; flex-shrink:0;">
+          📋 Copy Link
+        </button>
+      </div>
+
+      <!-- Live check-in counter -->
+      <div class="divider">Attendance</div>
+      <div class="checkin-counter" aria-live="polite" aria-label="Employees checked in">
+        <span class="big-num" id="checkinCount">0</span>
+        <div class="counter-label">
+          <strong>Employees Checked In</strong>
+          <span>Updates when employees submit the form</span>
+        </div>
+      </div>
+
+      <!-- Reset button -->
+      <div class="btn-row" style="margin-top: 20px;">
+        <button class="btn btn-danger" id="resetBtn" type="button">
+          🔄 Reset Session
+        </button>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      &copy; 2025 QR Attendance System &mdash; All rights reserved
+    </footer>
+  </div>
+
+  <!-- Mode B admin logic -->
+  <script src="js/checkin.js"></script>
+</body>
+
+</html>
