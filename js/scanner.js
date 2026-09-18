@@ -1,5 +1,5 @@
 /* ============================================================
-   scanner.js — Mode A: Admin Scans Employee QR Codes
+   scanner.js — Mode A: Teacher Scans Student QR ID Cards
    QR Attendance System
    ============================================================ */
 
@@ -34,7 +34,7 @@ html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 /* ── Scan Handlers ────────────────────────────────────────── */
 /**
  * Called by the library every time a QR code is successfully decoded.
- * @param {string} decodedText - The raw string content of the QR code.
+ * @param {string} decodedText - The raw string content of the student's QR code.
  */
 function onScanSuccess(decodedText) {
   // Guard: ignore new scans while a request is in-flight
@@ -44,7 +44,7 @@ function onScanSuccess(decodedText) {
   setStatus('logging', '⏳', 'Logging', `Sending: ${decodedText}…`);
   startScanLine();
 
-  // POST the attendee ID to the Google Apps Script backend
+  // POST the student ID to the Google Apps Script backend
   fetch(SCRIPT_URL, {
     method: 'POST',
     mode:   'no-cors',          // GAS doesn't send CORS headers on responses
@@ -54,19 +54,19 @@ function onScanSuccess(decodedText) {
     .then(() => {
       scanCount++;
       updateStats();
-      setStatus('success', '✅', 'Checked In', decodedText);
+      setStatus('success', '✅', 'Marked Present', decodedText);
       stopScanLine();
 
-      // 2-second cooldown before accepting the next scan
+      // 2-second cooldown to prevent scanning the same student twice
       setTimeout(() => {
-        setStatus('', '📷', 'Awaiting', 'Ready for next scan…');
+        setStatus('', '📷', 'Awaiting', 'Ready for next student…');
         isScanning = true;
       }, 2000);
     })
     .catch(_err => {
       errorCount++;
       updateStats();
-      setStatus('error', '❌', 'Error', 'Could not log attendance. Try again.');
+      setStatus('error', '❌', 'Error', 'Could not mark attendance. Please try again.');
       stopScanLine();
       isScanning = true;
     });

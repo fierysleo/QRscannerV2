@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Scan — QR Attendance</title>
-  <meta name="description" content="Scan employee QR badges to record attendance. Admin or front-desk mode." />
+  <title>Teacher Scan — Class Attendance</title>
+  <meta name="description" content="Teacher scans student QR ID cards to mark attendance. Quick and contact-free." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -37,10 +37,10 @@
     <header class="header">
       <div class="badge">
         <span class="dot"></span>
-        Admin Scan Mode
+        Teacher Scan Mode
       </div>
-      <h1>Scan Employee QR</h1>
-      <p>Point the camera at an employee's QR badge to check them in instantly.</p>
+      <h1>Scan Student QR</h1>
+      <p>Point the camera at a student's QR ID card to mark them present instantly.</p>
     </header>
 
     <!-- Main card -->
@@ -50,8 +50,8 @@
       <div class="instruction-banner" role="note">
         <span class="instr-icon" aria-hidden="true">💡</span>
         <span>
-          <strong>How to use:</strong> Tap <em>Start Camera</em>, then hold an employee's
-          QR badge inside the frame until you hear or see a confirmation.
+          <strong>How to use:</strong> Tap <em>Start Camera</em>, then hold a student's
+          QR ID card inside the frame until you see a confirmation.
         </span>
       </div>
 
@@ -71,7 +71,7 @@
         <span class="status-icon" id="statusIcon">📷</span>
         <span class="status-text">
           <span class="label" id="statusLabel">Awaiting</span>
-          <span id="status">Ready to scan…</span>
+          <span id="status">Ready to scan a student…</span>
         </span>
       </div>
 
@@ -79,7 +79,7 @@
       <div class="stats-row" aria-label="Session statistics">
         <div class="stat-chip">
           <span class="val" id="scanCount">0</span>
-          <span class="lbl">Scanned</span>
+          <span class="lbl">Students Marked</span>
         </div>
         <div class="stat-chip">
           <span class="val" id="errorCount">0</span>
@@ -94,7 +94,7 @@
     </main>
 
     <footer class="footer">
-      &copy; 2025 QR Attendance System &mdash; All rights reserved
+      &copy; 2025 School QR Attendance &mdash; All rights reserved
     </footer>
   </div>
 

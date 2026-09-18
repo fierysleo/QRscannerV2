@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Check In — QR Attendance</title>
-  <meta name="description" content="Scan the event QR code and fill in your details to mark your attendance." />
+  <title>Student Check-In — Class Attendance</title>
+  <meta name="description" content="Scan the class QR code and enter your details to mark your attendance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -103,10 +103,10 @@
     <header class="header" id="attendHeader">
       <div class="badge teal">
         <span class="dot"></span>
-        Employee Check-In
+        Student Check-In
       </div>
       <h1 class="teal-gradient">Mark Your Attendance</h1>
-      <p>Fill in your details below and tap <strong>Check In</strong> — it only takes a second!</p>
+      <p>Enter your details below and tap <strong>Mark Present</strong> — it only takes a second!</p>
     </header>
 
     <!-- Main card -->
@@ -120,7 +120,7 @@
 
         <div class="instruction-banner teal" role="note">
           <span class="instr-icon" aria-hidden="true">✏️</span>
-          <span>Enter your name and employee ID, then tap <strong>Check In</strong>.</span>
+          <span>Enter your full name and Student ID / LRN, then tap <strong>Mark Present</strong>.</span>
         </div>
 
         <div class="form-group" style="margin-top: 16px;">
@@ -137,12 +137,12 @@
         </div>
 
         <div class="form-group">
-          <label for="empIdInput">Employee / Student ID</label>
+          <label for="empIdInput">Student ID / LRN</label>
           <input
             type="text"
             id="empIdInput"
             class="form-input teal"
-            placeholder="e.g. EMP-00123"
+            placeholder="e.g. 2024-00123 or LRN-123456"
             autocomplete="off"
             maxlength="40"
             required
@@ -154,13 +154,13 @@
           <span class="status-icon" id="attendStatusIcon">🟢</span>
           <span class="status-text">
             <span class="label" id="attendStatusLabel">Ready</span>
-            <span id="attendStatusText">Fill in your details and tap Check In.</span>
+            <span id="attendStatusText">Enter your details and tap Mark Present.</span>
           </span>
         </div>
 
         <!-- Submit button -->
         <button class="btn btn-teal btn-full" id="submitCheckinBtn" type="button">
-          ✅ Check In
+          ✅ Mark Present
         </button>
 
       </div>
@@ -168,9 +168,9 @@
       <!-- Success screen (shown after successful submission) -->
       <div class="success-screen" id="successScreen" aria-live="assertive">
         <div class="success-circle" aria-hidden="true">✅</div>
-        <div class="success-title">You're Checked In!</div>
+        <div class="success-title">Attendance Recorded! 🎓</div>
         <div class="success-subtitle">
-          Your attendance has been recorded. You can close this page.
+          Your attendance has been recorded for this class. You may now close this page.
         </div>
         <div class="success-name" id="successName"></div>
       </div>
@@ -178,20 +178,20 @@
     </main>
 
     <footer class="footer">
-      &copy; 2025 QR Attendance System &mdash; All rights reserved
+      &copy; 2025 School QR Attendance &mdash; All rights reserved
     </footer>
   </div>
 
   <script>
     /* ============================================================
-       attend.html inline script — Employee Self Check-In
+       attend.html inline script — Student Self Check-In
        Logic is small enough to keep here as it is page-specific.
        ============================================================ */
 
     /* ── Configuration ────────────────────────────────────────── */
     /**
      * Same Google Apps Script URL as Mode A.
-     * Payload shape is different: { employeeId, employeeName, sessionId, mode: "self-checkin" }
+     * Payload shape: { employeeId, employeeName, sessionId, mode: "self-checkin" }
      */
     const SCRIPT_URL =
       'https://script.google.com/macros/s/AKfycbwHNBpb_YZqUjq_pP4-OfHXSiv3uH2q24u5Pv-E0JE-pboFL5v_7QSHFrJczl7TAV5E3A/exec';
@@ -219,21 +219,21 @@
       sessionDisplay.innerHTML = `
         <div class="session-error">
           <div class="error-icon">⚠️</div>
-          <strong style="color:var(--error);">No Session Found</strong>
-          <p>This check-in link is invalid or expired.<br/>Please scan the QR code again.</p>
+          <strong style="color:var(--error);">No Class Session Found</strong>
+          <p>This check-in link is invalid or has expired.<br/>Please scan the QR code displayed by your teacher.</p>
         </div>`;
       checkinForm.style.display = 'none';
     } else {
       // Show a friendly session badge
       sessionDisplay.innerHTML = `
         <span class="session-badge">
-          🗂️ Session: ${sessionId}
+          📚 Class: ${sessionId}
         </span>`;
     }
 
     /* ── Status Banner Helper ─────────────────────────────────── */
     /**
-     * Updates the status banner on the employee form.
+     * Updates the status banner on the student form.
      * @param {string} type  - '' | 'success' | 'error' | 'logging'
      * @param {string} icon  - Emoji icon
      * @param {string} label - Short uppercase label
@@ -297,7 +297,7 @@
         .catch(_err => {
           // Re-enable button on failure so user can retry
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '✅ Check In';
+          submitBtn.innerHTML = '✅ Mark Present';
           setAttendStatus('error', '❌', 'Error', 'Could not submit. Check your connection and try again.');
         });
     });

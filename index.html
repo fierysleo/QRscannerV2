@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QR Attendance System</title>
-  <meta name="description" content="Choose your attendance mode — scan employee QR codes or display a QR for employees to check in themselves." />
+  <title>School QR Attendance System</title>
+  <meta name="description" content="Manage class attendance with QR codes. Teachers scan student badges, or display a class QR for students to check in themselves." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -191,12 +191,12 @@
     <header class="header">
       <div class="badge">
         <span class="dot"></span>
-        Attendance System
+        School Attendance
       </div>
-      <h1>QR Attendance</h1>
+      <h1>Class Attendance</h1>
       <p class="hero-tagline">
-        Select how you want to manage attendance today.
-        Both modes sync directly to your attendance sheet.
+        Select how you want to take attendance today.
+        Both modes record directly to your class attendance sheet.
       </p>
     </header>
 
@@ -208,29 +208,29 @@
 
       <!-- Mode A: Admin scans employees -->
       <a class="mode-card mode-a" href="scanner.html" role="listitem" id="modeAdminScan"
-         aria-label="Admin Scan mode — staff scans employee QR codes">
+         aria-label="Teacher Scan mode — teacher scans student QR codes">
         <div class="mode-icon-wrap" aria-hidden="true">📷</div>
         <div>
-          <div class="mode-title">Admin Scans Employees</div>
+          <div class="mode-title">Teacher Scans Students</div>
           <div class="mode-desc">
-            Staff points the camera at each employee's personal QR badge to check them in.
+            Teacher points the camera at each student's QR ID card to mark them present.
           </div>
         </div>
         <div class="mode-tags">
-          <span class="tag tag-a">Admin / Staff</span>
-          <span class="tag tag-a">Front Desk</span>
+          <span class="tag tag-a">Teacher</span>
+          <span class="tag tag-a">Homeroom</span>
         </div>
         <span class="mode-arrow" aria-hidden="true">→</span>
       </a>
 
       <!-- Mode B: Admin shows QR, employees scan -->
       <a class="mode-card mode-b" href="checkin.html" role="listitem" id="modeEmployeeScan"
-         aria-label="Employee Check-In mode — display a QR for employees to scan">
+         aria-label="Student Self Check-In — display a QR for students to scan">
         <div class="mode-icon-wrap" aria-hidden="true">🖥️</div>
         <div>
-          <div class="mode-title">Employees Scan to Check In</div>
+          <div class="mode-title">Students Scan to Check In</div>
           <div class="mode-desc">
-            Display a QR code on screen. Employees scan it with their own phone to mark attendance.
+            Display a class QR code on the board. Students scan it with their phone to mark themselves present.
           </div>
         </div>
         <div class="mode-tags">
@@ -243,12 +243,12 @@
     </div>
 
     <p class="help-text">
-      Not sure which to pick? <strong style="color: var(--text-primary);">Admin Scans</strong> needs one device at the door.
-      <strong style="color: var(--text-primary);">Employee Check-In</strong> lets everyone use their own phone.
+      Not sure which to pick? <strong style="color: var(--text-primary);">Teacher Scans</strong> needs one device at the front.
+      <strong style="color: var(--text-primary);">Students Check In</strong> lets everyone use their own phone.
     </p>
 
     <footer class="footer">
-      &copy; 2025 QR Attendance System &mdash; All rights reserved
+      &copy; 2025 School QR Attendance &mdash; All rights reserved
     </footer>
   </div>
 </body>

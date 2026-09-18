@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Employee Check-In QR — QR Attendance</title>
-  <meta name="description" content="Generate a session QR code for employees to scan and check in themselves." />
+  <title>Class Check-In QR — School Attendance</title>
+  <meta name="description" content="Generate a class QR code for students to scan and mark their own attendance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -122,6 +122,25 @@
       margin-top: 16px;
     }
     .btn-row .btn { flex: 1; }
+
+    /* Count bump animation — fires when the number increases */
+    @keyframes countBump {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.28); color: #6ee7b7; }
+      100% { transform: scale(1); }
+    }
+    .count-bump { animation: countBump 0.45s ease both; }
+
+    /* Live poll status indicator */
+    .poll-status {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: block;
+      transition: color 0.3s;
+    }
+    .poll-status.poll-live  { color: var(--success); }
+    .poll-status.poll-error { color: var(--warn); }
   </style>
 </head>
 
@@ -147,10 +166,10 @@
     <header class="header">
       <div class="badge teal">
         <span class="dot"></span>
-        Employee Check-In
+        Student Check-In
       </div>
-      <h1 class="teal-gradient">Display Check-In QR</h1>
-      <p>Enter a session name, then show the QR on screen. Employees scan it with their phones to check in.</p>
+      <h1 class="teal-gradient">Class Check-In QR</h1>
+      <p>Enter the class or subject name, then show the QR on the board. Students scan it with their phones to mark attendance.</p>
     </header>
 
     <!-- Main card -->
@@ -160,19 +179,19 @@
       <div class="instruction-banner teal" role="note">
         <span class="instr-icon" aria-hidden="true">📌</span>
         <span>
-          <strong>Admin step:</strong> Type the event or session name below, tap
-          <em>Generate QR</em>, then display this screen where employees can scan it.
+          <strong>Teacher step:</strong> Type the class or subject name below, tap
+          <em>Generate QR</em>, then show this screen on the board or projector for students to scan.
         </span>
       </div>
 
       <!-- Event name input -->
       <div class="form-group">
-        <label for="eventNameInput">Event / Session Name</label>
+        <label for="eventNameInput">Class / Subject Name</label>
         <input
           type="text"
           id="eventNameInput"
           class="form-input teal"
-          placeholder="e.g. Morning Briefing, Oct 2025 Training…"
+          placeholder="e.g. Math 101, Science Lab, Morning Assembly…"
           maxlength="60"
           autocomplete="off"
           aria-required="true"
@@ -215,22 +234,22 @@
       <div class="checkin-counter" aria-live="polite" aria-label="Employees checked in">
         <span class="big-num" id="checkinCount">0</span>
         <div class="counter-label">
-          <strong>Employees Checked In</strong>
-          <span>Updates when employees submit the form</span>
+          <strong>Students Present</strong>
+          <span id="pollStatus" class="poll-status">Start a class session to track live attendance</span>
         </div>
       </div>
 
       <!-- Reset button -->
       <div class="btn-row" style="margin-top: 20px;">
         <button class="btn btn-danger" id="resetBtn" type="button">
-          🔄 Reset Session
+          🔄 New Class / Reset
         </button>
       </div>
 
     </main>
 
     <footer class="footer">
-      &copy; 2025 QR Attendance System &mdash; All rights reserved
+      &copy; 2025 School QR Attendance &mdash; All rights reserved
     </footer>
   </div>
 
